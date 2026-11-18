@@ -1,7 +1,7 @@
 {
   "name": "adv-backend-summative-medibook-project",
   "version": "1.0.0",
-  "description": "**Weight:** 30% of final grade **Duration:** 2 weeks **Mode:** Individual project **Stack (mandatory):** Node.js, Express.js, MySQL (with parameterized queries only), Redis",
+  "description": "Medibook Clinic appointment booking",
   "main": "src/server.js",
   "scripts": {
     "test": "jest",
