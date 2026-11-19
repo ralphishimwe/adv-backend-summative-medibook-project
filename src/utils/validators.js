@@ -4,6 +4,8 @@ const PHONE_PATTERN = /^[0-9+\- ]{7,20}$/;
 
 exports.PATIENT_FIELDS = ['full_name', 'email', 'phone'];
 exports.DOCTOR_FIELDS = ['full_name', 'specialty', 'consultation_fee', 'room'];
+exports.APPOINTMENT_FIELDS = ['patient_id', 'doctor_id', 'appt_datetime'];
+
 
 exports.checkUnknownFields = (body, allowedFields) => {
   const unknownFields = Object.keys(body).filter((field) => !allowedFields.includes(field));
