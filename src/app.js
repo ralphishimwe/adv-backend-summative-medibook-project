@@ -1,7 +1,7 @@
-const express = require("express");
-const morgan = require("morgan");
-const AppError = require("./utils/AppError");
-const errorHandler = require("./controllers/errorController");
+const express = require('express');
+const morgan = require('morgan');
+const AppError = require('./utils/AppError');
+const errorHandler = require('./controllers/errorController');
 
 const app = express();
 
