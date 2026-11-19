@@ -1,3 +1,4 @@
+const { SLOT_MINUTES, OPENING_HOUR, CLOSING_HOUR } = require('../config/constants');
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_PATTERN = /^[0-9+\- ]{7,20}$/;
 
@@ -44,5 +45,46 @@ exports.validateDoctor = (doctor) => {
   if (!isFilledString(doctor.room, 10)) {
     return 'room is required and must be at most 10 characters';
   }
+  return null;
+};
+
+const DATETIME_PATTERN = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/;
+
+exports.parseDateTime = (value) => {
+  const match = typeof value === 'string' ? value.match(DATETIME_PATTERN) : null;
+  if (!match) return null;
+
+  const [year, month, day, hour, minute] = match.slice(1).map(Number);
+  const date = new Date(year, month - 1, day, hour, minute);
+
+  const isRealDate =
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day &&
+    date.getHours() === hour &&
+    date.getMinutes() === minute;
+
+  return isRealDate ? date : null;
+};
+
+exports.validateAppointmentTime = (value, now = new Date()) => {
+  const date = exports.parseDateTime(value);
+  if (!date) {
+    return { statusCode: 400, message: 'appt_datetime must be a real date in the format YYYY-MM-DD HH:MM' };
+  }
+  if (date <= now) {
+    return { statusCode: 422, message: 'Appointments can only be booked in the future' };
+  }
+  if (date.getMinutes() % SLOT_MINUTES !== 0) {
+    return { statusCode: 422, message: 'Appointments must start on a 30-minute boundary (:00 or :30)' };
+  }
+
+  const startMinutes = date.getHours() * 60 + date.getMinutes();
+  const isWithinHours =
+    startMinutes >= OPENING_HOUR * 60 && startMinutes + SLOT_MINUTES <= CLOSING_HOUR * 60;
+  if (!isWithinHours) {
+    return { statusCode: 422, message: 'Appointments must be within working hours 09:00-17:00 (last slot starts at 16:30)' };
+  }
+
   return null;
 };
