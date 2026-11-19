@@ -1,11 +1,21 @@
 const Patient = require('../models/patientModel');
 const AppError = require('../utils/AppError');
-const { validatePatient } = require('../utils/validators');
+const {
+  validatePatient,
+  checkUnknownFields,
+  PATIENT_FIELDS,
+} = require('../utils/validators');
 
 exports.getAllPatients = async (req, res, next) => {
   try {
     const patients = await Patient.findAll();
-    res.status(200).json({ status: 'success', results: patients.length, data: { patients } });
+    res
+      .status(200)
+      .json({
+        status: 'success',
+        results: patients.length,
+        data: { patients },
+      });
   } catch (err) {
     next(err);
   }
@@ -25,6 +35,8 @@ exports.getPatient = async (req, res, next) => {
 exports.createPatient = async (req, res, next) => {
   try {
     const body = req.body || {};
+    const fieldsError = checkUnknownFields(body, PATIENT_FIELDS);
+    if (fieldsError) throw new AppError(fieldsError, 400);
     const newPatient = {
       full_name: body.full_name,
       email: body.email,
@@ -49,6 +61,11 @@ exports.updatePatient = async (req, res, next) => {
     if (!existing) throw new AppError('No patient found with that id', 404);
 
     const body = req.body || {};
+    if (Object.keys(body).length === 0) {
+      throw new AppError('Provide at least one field to update', 400);
+    }
+    const fieldsError = checkUnknownFields(body, PATIENT_FIELDS);
+    if (fieldsError) throw new AppError(fieldsError, 400);
     const updatedPatient = {
       full_name: body.full_name ?? existing.full_name,
       email: body.email ?? existing.email,
@@ -70,7 +87,8 @@ exports.updatePatient = async (req, res, next) => {
 exports.deletePatient = async (req, res, next) => {
   try {
     const deletedRows = await Patient.remove(req.params.id);
-    if (deletedRows === 0) throw new AppError('No patient found with that id', 404);
+    if (deletedRows === 0)
+      throw new AppError('No patient found with that id', 404);
 
     res.status(204).send();
   } catch (err) {

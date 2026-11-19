@@ -1,6 +1,17 @@
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_PATTERN = /^[0-9+\- ]{7,20}$/;
 
+exports.PATIENT_FIELDS = ['full_name', 'email', 'phone'];
+exports.DOCTOR_FIELDS = ['full_name', 'specialty', 'consultation_fee', 'room'];
+
+exports.checkUnknownFields = (body, allowedFields) => {
+  const unknownFields = Object.keys(body).filter((field) => !allowedFields.includes(field));
+  if (unknownFields.length > 0) {
+    return `Unknown field(s): ${unknownFields.join(', ')}. Allowed fields: ${allowedFields.join(', ')}`;
+  }
+  return null;
+};
+
 const isFilledString = (value, maxLength) =>
   typeof value === 'string' && value.trim().length > 0 && value.length <= maxLength;
 
