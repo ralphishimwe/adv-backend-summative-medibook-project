@@ -7,4 +7,5 @@ module.exports = {
   HALF_REFUND_HOURS: 24,
   HALF_REFUND_RATE: 0.5,
   BUSY_DAY_THRESHOLD: 0.8,
+  STATS_DAYS: 7,
 };
