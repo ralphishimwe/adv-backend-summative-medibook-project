@@ -6,6 +6,7 @@ exports.PATIENT_FIELDS = ['full_name', 'email', 'phone'];
 exports.DOCTOR_FIELDS = ['full_name', 'specialty', 'consultation_fee', 'room'];
 exports.APPOINTMENT_FIELDS = ['patient_id', 'doctor_id', 'appt_datetime'];
 exports.RESCHEDULE_FIELDS = ['appt_datetime'];
+exports.WAITLIST_FIELDS = ['patient_id', 'doctor_id', 'date'];
 
 exports.checkUnknownFields = (body, allowedFields) => {
   const unknownFields = Object.keys(body).filter((field) => !allowedFields.includes(field));
@@ -86,6 +87,22 @@ exports.validateAppointmentTime = (value, now = new Date()) => {
     startMinutes >= OPENING_HOUR * 60 && startMinutes + SLOT_MINUTES <= CLOSING_HOUR * 60;
   if (!isWithinHours) {
     return { statusCode: 422, message: 'Appointments must be within working hours 09:00-17:00 (last slot starts at 16:30)' };
+  }
+
+  return null;
+};
+
+
+exports.validateWaitlistDate = (value, now = new Date()) => {
+  const date = exports.parseDateTime(`${value} 00:00`);
+  if (!date) {
+    return { statusCode: 400, message: 'date must be a real date in the format YYYY-MM-DD' };
+  }
+
+  const lastSlotStart = new Date(date);
+  lastSlotStart.setHours(CLOSING_HOUR, -SLOT_MINUTES);
+  if (lastSlotStart <= now) {
+    return { statusCode: 422, message: 'You can only join the waitlist for a future day' };
   }
 
   return null;
