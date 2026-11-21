@@ -1,5 +1,6 @@
 const express = require('express');
 const doctorController = require('../controllers/doctorController');
+const reportController = require('../controllers/reportController');
 const checkId = require('../utils/checkId');
 
 const router = express.Router();
@@ -16,5 +17,7 @@ router
   .get(doctorController.getDoctor)
   .patch(doctorController.updateDoctor)
   .delete(doctorController.deleteDoctor);
+
+router.get('/:id/stats', reportController.getDoctorStats);
 
 module.exports = router;
